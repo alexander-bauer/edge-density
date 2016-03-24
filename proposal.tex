@@ -16,42 +16,46 @@
 
 Computer vision can be used to leverage sensing capabilities of consumer cameras
 and computer hardware for home automation purposes. Home automation is a rapidly
-growing field involving applied computer science, which currently suffers from
+growing field involving applied computer science; it currently suffers from
 an abundance of ``output'' hardware, such as smart thermostats and
-network-connected light bulbs, but a small amount of consumer-accessible
+network-connected light bulbs, but a small number of consumer-accessible
 ``input'' hardware for sensing home conditions, such as occupancy, motion, and
 ambient lighting.\footnote{Such sensors exist, but often involve integrated
 circuitry and custom software components.}
 
 Network- or PC-connected visible-light cameras are common in many households,
 and hence may allow us to leverage computer vision for numerous sensing tasks,
-including occupancy detection. I propose to study not only occupancy detection
-using consumer-grade cameras (Raspberry Pi camera and security-camera
-installations), but also ``clutter'' detection, to measure the degree of
-miscellaneous object clutter in a living space and indicate when cleaning up is
-necessary. Both applications will be run on consumer hardware suitable for
-actual home use.
+including occupancy detection. I propose to study both occupancy detection and
+``clutter.'' Occupancy detection is an important problem in home automation
+applications. Clutter is a measure the number of miscellaneous object objects
+in a living space, and could be used to indicate when cleaning up is necessary.
+Both applications will be use images taken on consumer cameras (Raspberry Pi and
+security cameras) and run on consumer computing hardware suitable for actual
+home use.
 
-Occupancy is a related but distinct problem from motion detection, which is
+Occupancy is a related but distinct problem from detecting motion, which is
 often solved by passive infrared sensors (PIRs).\footnote{Adafruit PIR kits
     for the Raspberry Pi: \url{https://adafruit.com/products/189}.}
-Occupants of a living area may not be moving, and may be strictly humanoid
-(whereas PIRs may detect pets); computer vision may be able to solve this
-problem. The popular open source library
+Occupants of a living area may be stationary, and PIRs may be triggered by
+non-humanoid motion, such as by pets. Computer vision may be able to solve this
+problem elegantly. The popular open source library
 OpenCV\footnote{\url{http://opencv.org}}
 includes a pre-trained histogram of oriented gradients (HoG) detector which I
 expect to use.
 
 Clutter detection appears to be a novel application for computer vision. My
-first approach will be to use an HoG descriptor on a training set comprised of
-images of a house in various stages of clutter. This will likely require the
-greatest portion of research time.
+first approach is to use an HoG descriptor on a training set comprised of images
+of a house in various degrees of clutter. Another possible method is to analyze
+the two-dimensional Fourier transform space of the images: higher frequencies of
+edges will indicate many small objects and lower frequencies will reflect
+larger, permanent objects in the living space. This problem will likely require
+the greatest portion of research time.
 
 Currently, my languages of choice for the project are Python and
-Julia,\footnote{\url{http://julialang.org}} a fast data-science language. They
-have excellent cross-language calling support, and seem well-suited to the
-application. I am also aiming to integrate my software with Idiotic, an open
-source home automation
+Julia,\footnote{\url{http://julialang.org}} a fast scientific programming
+language. They have excellent cross-language calling support, and seem
+well-suited to the application. I am also aiming to integrate my software with
+Idiotic, an open source home automation
 framework.\footnote{\url{https://github.com/idiotic/idiotic}} Using Python will
 make it very easy to include as a module, and hence release under an open source
 license for wider use.
