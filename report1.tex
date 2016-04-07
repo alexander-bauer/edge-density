@@ -1,0 +1,78 @@
+\documentclass{article}
+
+\usepackage{graphicx}
+\usepackage{subfig}
+
+\usepackage{../cmsc491}
+\fancyhead[R]{CMSC 491, Report 1}
+
+\pagestyle{fancy}
+
+\linespread{1.3}
+
+\begin{document}
+
+\begin{center}
+    \LARGE Occupancy and ``Clutter'' Detection for Home Automation \\
+    Report 1
+\end{center}
+
+Research up to this point has focused on occupancy detection only. In the mean
+time, I have completed some administrative tasks, such as starting a GitHub
+repository\footnote{\url{https://github.com/alexander-bauer/occupancy-and-clutter-detection}}
+and installing a camera.
+
+The GitHub repository contains a handful of source images captured from the
+research camera, including both occupied and un-occupied scenes. I have
+implemented a primitive occupancy detector, and tested it without great success
+on my sample images. At present, it results in very high rates of
+false-positives, and fails to detect either occupant.
+
+The current results of the occupancy detector on the data set is shown below.
+Green boxes indicate strong belief an occupant is present, red indicates a weak
+belief. My roommates Mark and Dylan are featured.
+
+\begin{figure}[h]
+    \begin{center}
+    \begin{tabular}{ccc}
+        \subfloat[False negative]{
+            \includegraphics[width=0.3\hsize]{results/occupied_00.jpg}} &
+        \subfloat[Major false negative]{
+            \includegraphics[width=0.3\hsize]{results/occupied_01.jpg}} &
+        \subfloat[Strong false positive]{
+            \includegraphics[width=0.3\hsize]{results/occupied_02.jpg}} \\
+        \subfloat[Weak false positives]{
+            \includegraphics[width=0.3\hsize]{results/occupied_03.jpg}} &
+        \subfloat[True negative]{
+            \includegraphics[width=0.3\hsize]{results/occupied_04.jpg}} &
+        \subfloat[Weak false positive]{
+            \includegraphics[width=0.3\hsize]{results/occupied_05.jpg}} \\
+        \subfloat[Weak false positives]{
+            \includegraphics[width=0.3\hsize]{results/occupied_06.jpg}} &
+        \subfloat[Strong false positives]{
+            \includegraphics[width=0.3\hsize]{results/occupied_07.jpg}} &
+        \subfloat[Major false negative, weak false positive]{
+            \includegraphics[width=0.3\hsize]{results/occupied_08.jpg}} \\
+    \end{tabular}
+    \end{center}
+\end{figure}
+
+\pagebreak
+
+Further refinement will require tuning of parameters, and testing with a wider
+range of data. I hope to expand my training set to include obviously visible and
+posed occupants, as well as partially-obscured, seated, and standing
+individuals. My poor initial results concern me, but I have yet to deeply
+investigate parameter tuning for the HOG person detector.
+
+One avenue I would like to explore is combining these frames from a rotated
+camera into a single scene, and determine how that affects performance and
+accuracy of occupancy searching. It would also provide a more convenient
+interface in software for determining whether an entire scene contains an
+occupant, rather than for individual frames.
+
+Techniques for clutter analysis remain unexplored for the time being, but
+hopefully more resources will be available for them now that several
+administrative tasks are out of the way.
+
+\end{document}
