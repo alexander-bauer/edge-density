@@ -1,6 +1,9 @@
-.PHONY: all
+.PHONY: all clean
 
 all: proposal.pdf
+
+clean:
+	rm -rf results/
 
 env: requirements.txt
 	python2 -m virtualenv env
