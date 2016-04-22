@@ -12,7 +12,8 @@ import vision.edges
 
 procedures = [
         vision.check_occupancy.check_occupancy,
-        vision.edges.edges
+        vision.edges.edges,
+        vision.edges.dense_edges
 ]
 
 def main(args):

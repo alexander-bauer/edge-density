@@ -10,17 +10,12 @@ def edges(im):
     # Convert to grayscale
     im = cv.cvtColor(im, cv.COLOR_BGR2GRAY)
 
-    dft = cv.dft(np.float32(im),flags = cv.DFT_COMPLEX_OUTPUT)
-    dft_shift = np.fft.fftshift(dft)
+    return cv.Canny(im, 200, 400)
 
-    mask = np.zeros((im.shape[0],im.shape[1],2),np.uint8)
-    mask[:,:] = 1
+def dense_edges(im, rect_radius=10, sd=4):
+    result = np.zeros((im.shape[0], im.shape[1], 1), np.uint8)
+    im_edges = edges(im)
+    blurred = cv.GaussianBlur(im_edges, (0, 0), sd)
+    ret,thresholded = cv.threshold(blurred, 95, 255, cv.THRESH_BINARY)
 
-    fshift = dft_shift * mask
-
-    f_ishift = np.fft.ifftshift(fshift)
-
-    im_back = cv.idft(f_ishift)
-    im_back = cv.magnitude(im_back[:,:,0], im_back[:,:,1])
-
-    return im_back
+    return thresholded
