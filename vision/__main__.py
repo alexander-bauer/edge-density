@@ -7,19 +7,30 @@ import argparse
 import cv2 as cv
 import imutils
 
-import check_occupancy
-import edges
+import vision.check_occupancy
+import vision.edges
+
+procedures = [
+        vision.check_occupancy.check_occupancy,
+        vision.edges.edges
+]
 
 def main(args):
+    procedure = None
+    for f in procedures:
+        if f.__name__ == args.procedure:
+            procedure = f
+            break
+
+    if args.save and not os.path.exists(args.save):
+        os.makedirs(args.save)
+
     for path in args.images:
         im = cv.imread(path)
         # Resize the image. Smaller images will be processed faster.
         im = imutils.resize(im, width=min(args.size, im.shape[1]))
 
-        if args.save and not os.path.exists(args.save):
-            os.makedirs(args.save)
-
-        modified = im
+        modified = procedure(im)
 
         if args.draw:
             # Show the image onscreen and wait for a keypress to dismiss.
@@ -34,6 +45,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("procedure", choices=[f.__name__ for f in procedures])
     parser.add_argument("images", nargs="+",
             help="images to check for occupancy")
     parser.add_argument("--draw", "-d", action="store_true",
