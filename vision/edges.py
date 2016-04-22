@@ -12,10 +12,12 @@ def edges(im):
 
     return cv.Canny(im, 200, 400)
 
-def dense_edges(im, rect_radius=10, sd=4):
-    result = np.zeros((im.shape[0], im.shape[1], 1), np.uint8)
-    im_edges = edges(im)
-    blurred = cv.GaussianBlur(im_edges, (0, 0), sd)
-    ret,thresholded = cv.threshold(blurred, 95, 255, cv.THRESH_BINARY)
+def corners(im, smoothing_sd=3):
+    gray = cv.cvtColor(im, cv.COLOR_BGR2GRAY)
+    smooth = cv.GaussianBlur(gray, (0, 0), smoothing_sd)
+    dst = cv.cornerHarris(np.float32(smooth), 2, 3, 0.16)
 
-    return thresholded
+    vis_points = cv.dilate(dst, None)
+    im[vis_points > 0.01 * vis_points.max()] = [0,0,255]
+
+    return im
