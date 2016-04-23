@@ -1,0 +1,51 @@
+\documentclass{article}
+
+\usepackage{graphicx}
+\usepackage{subfig}
+
+\usepackage{../cmsc491}
+\fancyhead[R]{CMSC 491, Report 2}
+
+\pagestyle{fancy}
+
+\linespread{1.3}
+
+\begin{document}
+
+\begin{center}
+    \LARGE Occupancy and ``Clutter'' Detection for Home Automation \\
+    Report 2
+\end{center}
+
+Since the past report, I have worked on clutter detection, and have explored a
+number of avenues, including the Fourier domain, and counting edges yielded by
+Canny edge detection. The best results have been achieved using Harris corner
+detection and counting the resulting number of corners in small sliding windows.
+
+As shown below, I get very noisy results using this method, though. Spots with
+dense clusters of corners are shown below in red. Some piles of clutter are
+correctly identified, but many are not, and there are numerous false positives.
+
+Another method I intend to explore is histograms of oriented gradients. My
+hypothesis is that cluttered areas will have ``noisy'' HOGs, with gradients
+oriented in many directions in roughly even numbers. I may be able to apply
+machine learning to this problem, also.
+
+\begin{figure}[h]
+    \begin{center}
+    \begin{tabular}{ccc}
+        \includegraphics[width=0.3\hsize]{results/dense_corners/occupied_00.jpg} &
+        \includegraphics[width=0.3\hsize]{results/dense_corners/occupied_01.jpg} &
+        \includegraphics[width=0.3\hsize]{results/dense_corners/occupied_02.jpg} \\
+        \includegraphics[width=0.3\hsize]{results/dense_corners/occupied_03.jpg} &
+        \includegraphics[width=0.3\hsize]{results/dense_corners/occupied_04.jpg} &
+        \includegraphics[width=0.3\hsize]{results/dense_corners/occupied_05.jpg} \\
+        \includegraphics[width=0.3\hsize]{results/dense_corners/occupied_06.jpg} &
+        \includegraphics[width=0.3\hsize]{results/dense_corners/occupied_07.jpg} &
+        \includegraphics[width=0.3\hsize]{results/dense_corners/occupied_08.jpg} \\
+    \end{tabular}
+    \end{center}
+\end{figure}
+
+
+\end{document}

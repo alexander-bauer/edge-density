@@ -47,7 +47,7 @@ def box_dense_corners(im, **kwargs):
     corners = dense_corners(im, **kwargs)
 
     dilated_corners = cv.dilate(corners, None)
-    im[dilated_corners > 0] = [0, 255, 0]
+    im[dilated_corners > 0] = [0, 0, 255]
     return im
 
     contours, hierarchy = cv.findContours(corners, 3, 4)
