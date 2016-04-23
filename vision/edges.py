@@ -42,3 +42,21 @@ def dense_corners(im, smoothing_sd=3, window_size=16, step_size=4):
     ret,dst = cv.threshold(num_corners, 150, 255, cv.THRESH_BINARY)
 
     return dst
+
+def box_dense_corners(im, **kwargs):
+    corners = dense_corners(im, **kwargs)
+
+    dilated_corners = cv.dilate(corners, None)
+    im[dilated_corners > 0] = [0, 255, 0]
+    return im
+
+    contours, hierarchy = cv.findContours(corners, 3, 4)
+    for contour in contours:
+        print(im)
+        x, y, w, h = cv.boundingRect(contour)
+        x0, y0 = max(x, 0), max(y, 0)
+        x1, y1 = min(x + w, im.shape[0]), min(y + h, im.shape[1])
+        cv.rectangle(im, (x0, y0), (x1, y1), (0,255,0), 2)
+
+
+    return im
