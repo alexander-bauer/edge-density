@@ -9,9 +9,9 @@ import vision.utils
 
 def edges(im):
     # Convert to grayscale
-    im = cv.cvtColor(im, cv.COLOR_BGR2GRAY)
+    bw_im = cv.cvtColor(im, cv.COLOR_BGR2GRAY)
 
-    return cv.Canny(im, 200, 400)
+    return cv.Canny(bw_im, 200, 400)
 
 def corners(im, smoothing_sd=3):
     gray = cv.cvtColor(im, cv.COLOR_BGR2GRAY)
@@ -60,3 +60,10 @@ def box_dense_corners(im, **kwargs):
 
 
     return im
+
+def dense_edges(im, size=(30, 30), threshold=50):
+    edges_im = edges(im)
+
+    sum_in_box = cv.boxFilter(edges_im, -1, size, normalize=True)
+    num, dense_edges = cv.threshold(sum_in_box, threshold, 255, cv.THRESH_BINARY)
+    return dense_edges
