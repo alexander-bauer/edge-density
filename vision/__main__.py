@@ -8,10 +8,15 @@ import cv2 as cv
 import numpy as np
 import imutils
 
+import vision.stitch
 import vision.check_occupancy
 import vision.edges
 
+def noop(im):
+    return im
+
 procedures = [
+        noop,
         vision.check_occupancy.check_occupancy,
         vision.edges.edges,
         vision.edges.corners,
@@ -30,11 +35,16 @@ def main(args):
     if args.save and not os.path.exists(args.save):
         os.makedirs(args.save)
 
+    images = []
     for path in args.images:
         im = cv.imread(path)
-        # Resize the image. Smaller images will be processed faster.
         im = imutils.resize(im, width=min(args.size, im.shape[1]))
+        images.append(im)
 
+    if args.panorama:
+        images = [vision.stitch.stitch(images)]
+
+    for im in images:
         modified = procedure(im)
         if len(modified.shape) < 3:
             result = np.zeros_like(im)
@@ -70,6 +80,8 @@ if __name__ == "__main__":
             help="images to check for occupancy")
     parser.add_argument("--draw", "-d", action="store_true",
             help="show images once generated")
+    parser.add_argument("--panorama", "-p", action="store_true",
+            help="stitch images together, rather than operating individually")
     parser.add_argument("--overlay", "-o", action="store_true",
             help="add modified image to original as an overlay")
     parser.add_argument("--colorize", action="store",
