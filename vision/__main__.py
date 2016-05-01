@@ -5,6 +5,7 @@ import sys, os
 import argparse
 
 import cv2 as cv
+import numpy as np
 import imutils
 
 import vision.check_occupancy
@@ -35,11 +36,26 @@ def main(args):
         im = imutils.resize(im, width=min(args.size, im.shape[1]))
 
         modified = procedure(im)
+        if len(modified.shape) < 3:
+            result = np.zeros_like(im)
+            if args.colorize in ['white', 'blue']:
+                result[:,:,0] = modified
+            if args.colorize in ['white', 'green']:
+                result[:,:,1] = modified
+            if args.colorize in ['white', 'red']:
+                result[:,:,2] = modified
+        else:
+            result = modified
+
+        # If the overlay argument is provided, sum the results with the original
+        # to produce an overlay.
+        if args.overlay:
+            result = cv.addWeighted(im, 1, result, 1, 0.0)
 
         if args.draw:
             # Show the image onscreen and wait for a keypress to dismiss.
             cv.imshow("Original", im)
-            cv.imshow("Modified", modified)
+            cv.imshow("Result", result)
             cv.waitKey(0)
 
         if args.save:
@@ -54,6 +70,11 @@ if __name__ == "__main__":
             help="images to check for occupancy")
     parser.add_argument("--draw", "-d", action="store_true",
             help="show images once generated")
+    parser.add_argument("--overlay", "-o", action="store_true",
+            help="add modified image to original as an overlay")
+    parser.add_argument("--colorize", action="store",
+            choices=['white', 'red', 'blue', 'green'], default='white',
+            help="add modified image to original as an overlay")
     parser.add_argument("--size", type=int, default=800,
             help="maximum image size; larger images will be resized")
     parser.add_argument("--save", "-s", type=str, default=None,
