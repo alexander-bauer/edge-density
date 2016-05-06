@@ -9,7 +9,7 @@ def check_occupancy(im):
 
     # Detect humans using the pre-trained HOG model.
     rectangles, weights = hog.detectMultiScale(im,
-        winStride=(2,2), padding=(8,8), scale=0.5)
+        winStride=(2,2), padding=(32,32), scale=1.05)
 
     for ((x, y, w, h), weight) in zip(rectangles, weights):
         # Color them green if certain, or red if uncertain.

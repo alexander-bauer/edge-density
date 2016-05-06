@@ -39,12 +39,13 @@ def main(args):
     for path in args.images:
         im = cv.imread(path)
         im = imutils.resize(im, width=min(args.size, im.shape[1]))
-        images.append(im)
+        images.append((path, im))
 
     if args.panorama:
-        images = [vision.stitch.stitch(images)]
+        common_path = os.path.commonprefix([path for path, im in images])
+        images = [common_path, vision.stitch.stitch([im for path, im in images])]
 
-    for im in images:
+    for path, im in images:
         modified = procedure(im)
         if len(modified.shape) < 3:
             result = np.zeros_like(im)
@@ -71,7 +72,7 @@ def main(args):
         if args.save:
             mod_path = os.path.join(args.save, os.path.basename(path))
             print(path, "->", mod_path)
-            cv.imwrite(mod_path, modified)
+            cv.imwrite(mod_path, result)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

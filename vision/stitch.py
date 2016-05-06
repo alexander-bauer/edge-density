@@ -44,12 +44,34 @@ def stitch(images, reference=None, **kwargs):
         # image to the reference.
         transforms[index] = transforms[index-1] * itransform
 
-    print(transforms)
+    maxshape = sum((im.shape[1] for im in images)), \
+            sum((im.shape[0] for im in images))
+    reprojected = [cv.warpPerspective(im, H, maxshape)
+            for im, H in zip(images, transforms)]
 
+    for im in reprojected:
+        cv.imshow('reprojected', im)
+        cv.waitKey(0)
+
+    result = sum(reprojected)
+    return result
 
 def stitch2(imleft, imright, transform_only=False):
     """Stitch together two images using RANSAC. Returns a panorama and the
     transformation used to produce it.
 
     If `transform_only` is True, then the panorama is not computed."""
-    return None, np.eye(3)
+    left_points, left_features = detect_and_describe(imleft)
+    right_points, right_features = detect_and_describe(imright)
+
+    print(left_points, right_points)
+
+    return None, np.array([[1, 0, 50], [0, 1, 0], [0, 0, 1]])
+
+def detect_and_describe(im, descriptor='SIFT'):
+    gray = cv.cvtColor(im, cv.COLOR_BGR2GRAY)
+    detector = cv.FastFeatureDetector_create(descriptor)
+    extractor = cv.FastFeatureExtractor_create(descriptor)
+
+    key_points = detector.detect(gray)
+    return extractor.compute(gray, key_points)
