@@ -1,6 +1,6 @@
 .PHONY: all clean
 
-all: proposal.pdf report1.pdf report2.pdf
+all: proposal.pdf report1.pdf report2.pdf report3.pdf
 
 clean:
 	rm -rf results/

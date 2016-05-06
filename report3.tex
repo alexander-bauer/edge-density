@@ -1,0 +1,61 @@
+\documentclass{article}
+
+\usepackage{graphicx}
+\usepackage{subfig}
+
+\usepackage{../cmsc491}
+\fancyhead[R]{CMSC 491, Report 3}
+
+\pagestyle{fancy}
+
+\linespread{1.3}
+
+\begin{document}
+
+\begin{center}
+    \LARGE Occupancy and ``Clutter'' Detection for Home Automation \\
+    Report 3
+\end{center}
+
+\section*{Dense Edges as a Measure of Clutter}
+
+In an earlier report, I examined the edges in the images as detected by the Canny
+edge detector. Inspecting the edges, I recognized that areas I knew to be
+clutter had dense lines. These areas then had a high response to averaging using
+a box filter. Points to classify as clutter were then identified using a
+binary threshold.
+
+Preliminary results using this method are shown overlaid on the source images
+below.
+
+\begin{figure}[h]
+    \begin{center}
+    \begin{tabular}{ccc}
+        \includegraphics[width=0.3\hsize]{results/dense_edges/occupied_00.jpg} &
+        \includegraphics[width=0.3\hsize]{results/dense_edges/occupied_01.jpg} &
+        \includegraphics[width=0.3\hsize]{results/dense_edges/occupied_02.jpg} \\
+        \includegraphics[width=0.3\hsize]{results/dense_edges/occupied_03.jpg} &
+        \includegraphics[width=0.3\hsize]{results/dense_edges/occupied_04.jpg} &
+        \includegraphics[width=0.3\hsize]{results/dense_edges/occupied_05.jpg} \\
+        \includegraphics[width=0.3\hsize]{results/dense_edges/occupied_06.jpg} &
+        \includegraphics[width=0.3\hsize]{results/dense_edges/occupied_07.jpg} &
+        \includegraphics[width=0.3\hsize]{results/dense_edges/occupied_08.jpg} \\
+    \end{tabular}
+    \end{center}
+\end{figure}
+
+This produces surprisingly complete true positives; almost all of ground truth
+patches of clutter. However, it identifies many false positives, mostly in wall
+hangings and light fixtures. I would like to explore methods for reducing the
+number these false positives.
+
+Additionally, I have started working on code to automatically construct a
+panorama from the given images. Although not applicable to all settings, use of
+a panorama would make sense for the security camera data I currently have to
+work with.
+
+At this point in the project, I am considering giving up on human detection.
+Other libraries exist to track motion and detect pedestrians, and my efforts
+tuning detectors seem to be wasted.
+
+\end{document}
