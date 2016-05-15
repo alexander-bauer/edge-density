@@ -51,7 +51,8 @@ def main(args):
 
         # If we are comparing with the truth value, construct that layer.
         if args.truth:
-            modified = vision.truth.compare(modified, path, args.truth_path)
+            confusion, modified = vision.truth.compare(modified, path, args.truth_path)
+            print("Confusion matrix:\n{}".format(confusion))
 
         # Convert the result to 3-color if it is 1-color.
         if len(modified.shape) < 3:

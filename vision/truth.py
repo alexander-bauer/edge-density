@@ -17,9 +17,10 @@ def truth(path, truth_root):
     return truth_im
 
 def compare(imregion, path, truth_root):
-    """Compare the given image region with the associated ground truth.
+    """Compare the given image region with the associated ground truth. Returns
+    a tuple containing the confusion matrix and the comparison image.
 
-    Green where the region matches the truth.
+    Green where the region covers the truth.
     Red where the truth is not covered by the region.
     Blue where the region is not atop the truth.
     """
@@ -30,16 +31,23 @@ def compare(imregion, path, truth_root):
     result = np.zeros((imregion.shape[0], imregion.shape[1], 3),
             dtype=np.uint8)
 
-    # Fill the blue channel, which is where region > truth
-    false_positives = (imregion > truth_im)
-    result[:,:,0][false_positives] = 255
+    # True positives are the same in the ground truth and input image.
+    true_positive = (truth_im > 0) & (imregion == truth_im)
 
-    # Fill the green channel, which is where region == truth and truth > 0
-    true_positives = (truth_im > 0) & (imregion == truth_im)
-    result[:,:,1][true_positives] = 255
+    # False positives are hits in the input image and not the ground truth.
+    false_positive = imregion > truth_im
 
-    # Fill the red channel, which is where the (truth > region)
-    false_negatives = (truth_im > imregion)
-    result[:,:,2][false_negatives] = 255
+    # False negatives are hits in the grouth truth and not the input image.
+    false_negative = truth_im > imregion
 
-    return result
+    # True negatives are zero in both the ground truth and input image.
+    true_negative = (truth_im == 0) & (imregion == 0)
+
+    result[:,:,0][false_positive] = 255 # blue
+    result[:,:,1][true_positive]  = 255 # green
+    result[:,:,2][false_negative] = 255 # red
+
+    pixels = float(truth_im.size)
+    confusion = np.matrix([[true_positive.sum()/pixels, false_negative.sum()/pixels],
+                           [false_positive.sum()/pixels, true_negative.sum()/pixels]])
+    return confusion, result
