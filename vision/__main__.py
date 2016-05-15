@@ -8,6 +8,7 @@ import cv2 as cv
 import numpy as np
 import imutils
 
+import vision.truth
 import vision.stitch
 import vision.check_occupancy
 import vision.edges
@@ -47,6 +48,12 @@ def main(args):
 
     for path, im in images:
         modified = procedure(im)
+
+        # If we are comparing with the truth value, construct that layer.
+        if args.truth:
+            modified = vision.truth.compare(modified, path, args.truth_path)
+
+        # Convert the result to 3-color if it is 1-color.
         if len(modified.shape) < 3:
             result = np.zeros_like(im)
             if args.colorize in ['white', 'blue']:
@@ -88,6 +95,9 @@ if __name__ == "__main__":
     parser.add_argument("--colorize", action="store",
             choices=['white', 'red', 'blue', 'green'], default='white',
             help="add modified image to original as an overlay")
+    parser.add_argument("--truth", "-T", action="store_true",
+            help="show the ground truth overlay")
+    parser.add_argument("--truth-path", "-tp", default="data/ground_truth")
     parser.add_argument("--size", type=int, default=800,
             help="maximum image size; larger images will be resized")
     parser.add_argument("--save", "-s", type=str, default=None,
