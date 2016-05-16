@@ -14,14 +14,15 @@ def edges(im):
     return cv.Canny(bw_im, 200, 400)
 
 def corners(im, smoothing_sd=3):
+    output = np.zeros((im.shape[0], im.shape[1]), dtype=np.uint8)
     gray = cv.cvtColor(im, cv.COLOR_BGR2GRAY)
     smooth = cv.GaussianBlur(gray, (0, 0), smoothing_sd)
     dst = cv.cornerHarris(np.float32(smooth), 2, 3, 0.16)
 
-    vis_points = cv.dilate(dst, None)
-    im[vis_points > 0.01 * vis_points.max()] = [0,0,255]
+    vis_points = cv.dilate(dst, None, iterations=3)
+    output[vis_points > 0.01 * vis_points.max()] = 255
 
-    return im
+    return output
 
 def dense_corners(im, smoothing_sd=3, window_size=16, step_size=4):
     if type(window_size) != tuple:

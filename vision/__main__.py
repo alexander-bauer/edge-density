@@ -49,12 +49,15 @@ def main(args):
         common_path = os.path.commonprefix([path for path, im in images])
         images = [common_path, vision.stitch.stitch([im for path, im in images])]
 
+    confusion_matrices = []
+
     for path, im in images:
         modified = procedure(im)
 
         # If we are comparing with the truth value, construct that layer.
         if args.truth:
             confusion, modified = vision.truth.compare(modified, path, args.truth_path)
+            confusion_matrices.append(confusion)
             print("Confusion matrix:\n{}".format(confusion))
 
         # Convert the result to 3-color if it is 1-color.
@@ -84,6 +87,19 @@ def main(args):
             mod_path = os.path.join(args.save, os.path.basename(path))
             print(path, "->", mod_path)
             cv.imwrite(mod_path, result)
+
+    # Print a final confusion matrix if testing was done.
+    if args.truth:
+        # Build one 3D matrix of all confusion matrices
+        confusion_stack = np.zeros((2, 2, len(confusion_matrices)))
+        for i, matrix in enumerate(confusion_matrices):
+            confusion_stack[:,:,i] = matrix
+
+        # Take the mean of the resulting matrix along the z axis.
+        confusion = confusion_stack.mean(axis=2)
+
+        # And print it.
+        print("Confusion:\n{}".format(confusion))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
