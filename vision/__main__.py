@@ -23,7 +23,10 @@ procedures = [
         vision.edges.corners,
         vision.edges.dense_corners,
         vision.edges.box_dense_corners,
-        vision.edges.dense_edges
+        vision.edges.dense_edges,
+        vision.edges.contour_dense_edges,
+        vision.edges.contour_enclosed,
+        vision.edges.sum_closed_edges
 ]
 
 def main(args):
