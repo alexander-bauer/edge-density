@@ -3,8 +3,8 @@
 \usepackage{graphicx}
 \usepackage{subfig}
 
-\usepackage[backend=biber]{biblatex}
-\addbibresource{references}
+\usepackage[backend=biber,style=ieee]{biblatex}
+\addbibresource{references.bib}
 
 \usepackage{../cmsc491}
 \fancyhead[R]{CMSC 491, Final Report}
@@ -14,18 +14,19 @@
 \begin{document}
 
 \begin{center}
-    {\LARGE Rapid Clutter Recognition using Edge Detectors} \\
+    {\LARGE Rapid Clutter Recognition} \\
     {\large Alexander Bauer}
 \end{center}
 
-\section*{Abstract}
+\section*{Introduction}
 
 Shared living spaces can rapidly accumulate disorganized miscellaneous items, or
 ``clutter.'' Different individuals may have very different tolerances for
 clutter in the household, and this can be a source of tension among housemates.
-Using commodity cameras and processors, the methods presented here can provide a
-baseline clutter detector. Results may serve as a prompt for residents to begin
-picking up, or as a guide to identify areas of greatest importance.
+Using commodity cameras and processors, the methods presented here serve as a
+rapid and automatic clutter detector. Results may serve as a prompt for
+residents to begin picking up, or as a guide to identify areas of greatest
+importance.
 
 \section*{Problem Statement}
 
@@ -37,13 +38,290 @@ tissue boxes are clutter, but furniture is not.
 
 \section*{Related Research}
 
+A wealth of research is available for the problem of object
+recognition \cite{Lowe99,Besl86,Torralba03,Torralba04}, but
+that is not quite the domain of this problem. Furthermore, there exist many
+schemes to recognize objects of interest in cluttered
+scenes \cite{Mori03,Johnson99}. Due to the apparent absence of scholarly
+research available on the general recognition of clutter itself, this author is
+led to believe it is a novel application.
+
 \section*{Methods}
 
+There are two techniques presented here: simple corner detection, and dense edge
+detection. The former serves as a primitive baseline with a high false-positive
+rate that is unable to capture regions. The latter is capable of describing
+entire regions which appear cluttered.
 
+\subsection*{Corner Detection}
+
+Full-color images are converted to grayscale, and corners are detected using the
+Harris corner detector \cite{Harris88}. The OpenCV implementation
+\cite{cv2:cornerHarris} is invoked with block size of $2$, kernel size of $3$,
+and free parameter of $0.16$. Resulting points are dilated for display and drawn
+on a new blank image.
+
+See figure~\ref{fig:corner_01} for an example and test results. In
+\ref{fig:corner_01_truth}, green regions are true positive cluttered areas, red
+are false negatives, and blue are false positives.
+
+\begin{figure}[p]
+    \begin{center}
+    \begin{tabular}{ccc}
+        \subfloat[Original Image]{
+            \includegraphics[width=0.3\hsize]{results/process/corners/occupied_01.jpg}} &
+        \subfloat[Harris Corners]{
+            \includegraphics[width=0.3\hsize]{results/process/corners/corners_01.jpg}} &
+        \subfloat[Tests Against Ground Truth]{
+            \includegraphics[width=0.3\hsize]{results/process/corners/test_results_01.jpg}
+            \label{fig:corner_01_truth}
+        }
+    \end{tabular}
+    \end{center}
+    \caption{Corner Detection on Surveillance Camera Photo}
+    \label{fig:corner_01}
+\end{figure}
+
+\subsection*{Dense Edge Detection}
+
+Full-color images are converted to grayscale, and a new image is rendered by
+drawing edges detected by the Canny edge detector \cite{Canny86, cv2:Canny} with
+thresholds $200$ and $400$. These are drawn on a new blank image and then
+blurred using a box filter \cite{McDonnell81, cv2:boxFilter} of size $30 \times
+30$. This gives high results in areas with dense edges, and low results in areas
+with few or no edges. These are clipped using an adaptive Gaussian threshold
+\cite{Wilkinson03,cv2:adaptiveThreshold} with a box size of $101 \times 101$ and
+a constant of $10$ added to the mean threshold. Surrounding contours are then found
+for each region \cite{Suzuki85,cv2:findContours}, and their convex hulls
+\cite{Sklansky82,cv2:convexHull} are drawn on a new blank image.
+
+Steps are shown in order in figure~\ref{fig:dense_01}.
+Subfigure~\ref{fig:dense_01_truth} shows results of this detector
+against the ground truth.
+
+\begin{figure}[p]
+    \begin{center}
+    \begin{tabular}{ccc}
+        \subfloat[Original Image]{
+            \includegraphics[width=0.3\hsize]{results/process/dense_edges/occupied_01.jpg}} &
+        \subfloat[Canny Edges]{
+            \includegraphics[width=0.3\hsize]{results/process/dense_edges/edges_01.jpg}} &
+        \subfloat[Blurred Canny Edges]{
+            \includegraphics[width=0.3\hsize]{results/process/dense_edges/blurred_01.jpg}} \\
+        \subfloat[Threshold Results]{
+            \includegraphics[width=0.3\hsize]{results/process/dense_edges/dense_01.jpg}} &
+        \subfloat[Convex Hulls]{
+            \includegraphics[width=0.3\hsize]{results/process/dense_edges/convex_01.jpg}} &
+        \subfloat[Tests Against Ground Truth]{
+            \includegraphics[width=0.3\hsize]{results/process/dense_edges/test_results_01.jpg}
+            \label{fig:dense_01_truth}
+        }
+    \end{tabular}
+    \end{center}
+    \caption{Dense Edge Detection on Surveillance Camera Photo}
+    \label{fig:dense_01}
+\end{figure}
 
 \pagebreak
-\section*{References}
+\section*{Results}
 
+For testing these methods, two sets of images of the same scene were prepared
+with different levels of clutter, and were hand-classified to provide a ground
+truth. Test results are shown on each in
+figures~\ref{fig:corners_test_01}-\ref{fig:dense_test_02}. Green regions are true
+positives, blue regions are false positives, and red regions are false
+negatives.
+
+A numerical measure of the success of the detectors was given by a confusion
+matrix. The elements are true positives, false positives, false negatives, and
+true negatives, each given as a percentage of total pixels. This measure has
+severe limitations; confusion matrices from different images may not be easily
+compared, because they do not normalize across quantity of clutter.
+
+\begin{center}
+    {\large Corner Detector across Datasets 1 and 2} \\[1em]
+\begin{tabular}{c|cc}
+    & Detected Clutter & Detected Non-Clutter \\
+    \hline
+    Actual Clutter     & $0.012\%$ & $0.124\%$ \\
+    Actual Non-Clutter & $0.027\%$ & $0.837\%$
+\end{tabular}
+\end{center}
+\hfill
+
+\begin{center}
+    {\large Dense Edge Detector across Datasets 1 and 2} \\[1em]
+\begin{tabular}{c|cc}
+    & Detected Clutter & Detected Non-Clutter \\
+    \hline
+    Actual Clutter     & $0.027\%$ & $0.106\%$ \\
+    Actual Non-Clutter & $0.055\%$ & $0.811\%$
+\end{tabular}
+\end{center}
+
+These numerical results clearly indicate that although the dense edge detector
+has a higher rate of false positives by area, it more correctly classifies regions of
+actual clutter than the naive corner detector. 
+
+More notably, visual results indicate that although the dense edge detector does
+not cover areas of clutter, it is able to locate a small portion of most or all
+cluttered regions. Hence, if false positives were suppressed, it could serve as
+a sufficient classifier. This indicates that better results could be achieved
+with more parameter tuning, or with extensions of this simple method.
+
+For example, a machine learning algorithm could be trained with coordinates of
+false positives in images taken by mounted security camera. Then, in future
+predictions, known false positives (such as wall hangings, as appear prominently
+in figure~\ref{fig:dense_test_01}) could be discarded.
+
+These results are promising for home automation applications, particularly with
+the potential for false positive suppression. Additionally, as seen in
+figure~\ref{fig:comparison_outdoor}, outdoor trash detection may also be a
+possibility. Areas of further study might include use of low-flying photography
+drones to locate trash and litter in public places.
+
+\begin{figure}[p]
+    \begin{center}
+    \begin{tabular}{ccc}
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/corners/occupied_00.jpg}} &
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/corners/occupied_01.jpg}} &
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/corners/occupied_02.jpg}} \\
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/corners/occupied_03.jpg}} &
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/corners/occupied_04.jpg}} &
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/corners/occupied_05.jpg}} \\
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/corners/occupied_06.jpg}} &
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/corners/occupied_07.jpg}} &
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/corners/occupied_08.jpg}} \\
+    \end{tabular}
+    \end{center}
+    \caption{Corners Test Results on Dataset 1}
+    \label{fig:corners_test_01}
+\end{figure}
+
+\begin{figure}[p]
+    \begin{center}
+    \begin{tabular}{ccc}
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/corners/01.jpg}} &
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/corners/02.jpg}} &
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/corners/03.jpg}} \\
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/corners/04.jpg}} &
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/corners/05.jpg}} &
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/corners/06.jpg}} \\
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/corners/07.jpg}} &
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/corners/08.jpg}} &
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/corners/09.jpg}}
+    \end{tabular}
+    \end{center}
+    \caption{Corners Test Results on Dataset 2}
+    \label{fig:corners_test_02}
+\end{figure}
+
+\begin{figure}[p]
+    \begin{center}
+    \begin{tabular}{ccc}
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/dense/occupied_00.jpg}} &
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/dense/occupied_01.jpg}} &
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/dense/occupied_02.jpg}} \\
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/dense/occupied_03.jpg}} &
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/dense/occupied_04.jpg}} &
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/dense/occupied_05.jpg}} \\
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/dense/occupied_06.jpg}} &
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/dense/occupied_07.jpg}} &
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/dense/occupied_08.jpg}} \\
+    \end{tabular}
+    \end{center}
+    \caption{Dense Edges Test Results on Dataset 1}
+    \label{fig:dense_test_01}
+\end{figure}
+
+\begin{figure}[p]
+    \begin{center}
+    \begin{tabular}{ccc}
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/dense/01.jpg}} &
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/dense/02.jpg}} &
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/dense/03.jpg}} \\
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/dense/04.jpg}} &
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/dense/05.jpg}} &
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/dense/06.jpg}} \\
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/dense/07.jpg}} &
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/dense/08.jpg}} &
+        \subfloat[]{
+            \includegraphics[width=0.3\hsize]{results/test/dense/09.jpg}}
+    \end{tabular}
+    \end{center}
+    \caption{Dense Edges Test Results on Dataset 2}
+    \label{fig:dense_test_02}
+\end{figure}
+
+\begin{figure}[p]
+    \begin{center}
+    \begin{tabular}{cc}
+        \subfloat[Corners]{
+            \includegraphics[width=0.5\hsize]{results/test/corners/handheld_01.jpg}} &
+        \subfloat[Dense Edges]{
+            \includegraphics[width=0.5\hsize]{results/test/dense/handheld_01.jpg}} \\
+        \subfloat[Corners]{
+            \includegraphics[width=0.5\hsize]{results/test/corners/handheld_02.jpg}} &
+        \subfloat[Dense Edges]{
+            \includegraphics[width=0.5\hsize]{results/test/dense/handheld_02.jpg}}
+    \end{tabular}
+    \end{center}
+    \caption{Indoor Photos with a Handheld Camera}
+    \label{fig:comparison_indoor}
+\end{figure}
+\begin{figure}[p]
+    \begin{center}
+    \begin{tabular}{cc}
+        \subfloat[Corners]{
+            \includegraphics[width=0.5\hsize]{results/test/corners/outdoor_01.jpg}} &
+        \subfloat[Dense Edges]{
+            \includegraphics[width=0.5\hsize]{results/test/dense/outdoor_01.jpg}} \\
+        \subfloat[Corners]{
+            \includegraphics[width=0.5\hsize]{results/test/corners/outdoor_02.jpg}} &
+        \subfloat[Dense Edges]{
+            \includegraphics[width=0.5\hsize]{results/test/dense/outdoor_02.jpg}}
+    \end{tabular}
+    \end{center}
+    \caption{Outdoor Photos with a Handheld Camera}
+    \label{fig:comparison_outdoor}
+\end{figure}
+
+\pagebreak
 \printbibliography
 
 \end{document}
