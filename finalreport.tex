@@ -10,6 +10,7 @@
 \fancyhead[R]{CMSC 491, Final Report}
 
 \pagestyle{fancy}
+\linespread{1.1}
 
 \begin{document}
 
@@ -22,16 +23,16 @@
 
 Shared living spaces can rapidly accumulate disorganized miscellaneous items, or
 ``clutter.'' Different individuals may have very different tolerances for
-clutter in the household, and this can be a source of tension among housemates.
+clutter in the household, and this can be a source of tension among cohabitants.
 Using commodity cameras and processors, the methods presented here serve as a
-rapid and automatic clutter detector. Results may serve as a prompt for
-residents to begin picking up, or as a guide to identify areas of greatest
-importance.
+rapid and automatic clutter detector. These results may be used to automatically
+prompt residents to begin picking up, as a guide to identify areas of
+greatest importance, or to numerically track trends in household cleanliness.
 
 \section*{Problem Statement}
 
 The objective of this project was to automatically identify and locate cluttered
-regions in photos taken using surveillance and smartphone cameras.  ``Clutter''
+regions in photos taken using surveillance and smartphone cameras. ``Clutter''
 is a subjective term, but for these purposes was broadly taken to include any
 small foreign or out-of-place object in a scene. For example: shoes, dishes,
 tissue boxes are clutter, but furniture is not.
@@ -47,6 +48,11 @@ research available on the general recognition of clutter itself, this author is
 led to believe it is a novel application.
 
 \section*{Methods}
+
+Providing the context necessary to identify ``out-of-place'' objects in a scene
+is complicated problem in its own right, as is the generalized object
+recognition capability necessary to apply them. Hence, it is necessary to use
+other heuristics as an analogue for actual clutter.
 
 There are two techniques presented here: simple corner detection, and dense edge
 detection. The former serves as a primitive baseline with a high false-positive
@@ -122,7 +128,6 @@ against the ground truth.
     \label{fig:dense_01}
 \end{figure}
 
-\pagebreak
 \section*{Results}
 
 For testing these methods, two sets of images of the same scene were prepared
